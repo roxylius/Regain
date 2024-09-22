@@ -53,7 +53,8 @@ const initializeForm = (shadowRoot) => {
 
 			const data = {
 				expireOn: Date.now() + parseInt(useTime) * 60 * 1000, // Convert minutes into milliseconds
-				dailyLimit: parseInt(timeLimit)
+				dailyLimit: parseInt(timeLimit),
+				allotedTime: parseInt(useTime)
 			};
 			console.log(data);
 			// Send data to foreground.js
@@ -73,90 +74,17 @@ const initializeForm = (shadowRoot) => {
 	})
 }
 
-// Wait for the shadow root to be available
+// Wait for the shadow root to be available using requestAnimationFrame
 const waitForShadowRoot = () => {
-	const shadowHost = document.querySelector("#overlay");
-	if (shadowHost) {
-		console.log("Shadow Host found");
-		const shadowRoot = shadowHost.shadowRoot;
-		initializeForm(shadowRoot);
-	} else {
-		console.log("Waiting for shadow root...");
-		setTimeout(waitForShadowRoot, 100); // Retry after 100ms
-	}
+    const shadowHost = document.querySelector("#overlay.overlay-shadowRoot_001");
+    if (shadowHost) {
+        console.log("Shadow Host and Shadow Root found");
+        initializeForm(shadowHost.shadowRoot);
+    } else {
+        console.log("Waiting for shadow root...");
+        requestAnimationFrame(waitForShadowRoot); // Retry on the next frame
+    }
 };
 
+// Start waiting for the shadow root
 waitForShadowRoot();
-
-
-// Make the function accessible in the global scope
-// window.initPromptForm = initPromptForm;
-// console.log('initPromptForm has been assigned to the global scope');
-
-// document.addEventListener('DOMContentLoaded', () => {
-// 	console.log("Script loaded");
-
-// 	// Get the shadow root
-// 	const shadowRoot = document.currentScript.getRootNode();
-
-// 	// Select buttons within the shadow root
-// 	const buttons = shadowRoot.querySelectorAll('.radio-btn');
-// 	console.log("Buttons found: ", buttons);
-
-// 	buttons.forEach(button => {
-// 		if (!button.classList.contains('submit')) {
-// 			button.addEventListener('click', (event) => {
-// 				// Prevent default button behavior
-// 				event.preventDefault();
-// 				console.log("Button clicked: ", button);
-
-// 				// Remove 'selected' class from all buttons
-// 				buttons.forEach(btn => {
-// 					btn.classList.remove('selected');
-// 				});
-
-// 				// Add 'selected' class to the clicked button
-// 				button.classList.add('selected');
-// 			});
-// 		}
-// 	});
-
-// 	// Form validation and submission
-// 	const form = shadowRoot.querySelector('.configForm');
-
-// 	form.addEventListener('submit', (event) => {
-// 		event.preventDefault();
-
-// 		// Form validation
-// 		let isFormValid = true;
-
-// 		// If time limit is not a number or empty
-// 		const timeLimit = shadowRoot.querySelector('#limit').value;
-// 		console.log("Time limit: ", timeLimit);
-
-// 		if (isNaN(timeLimit) || timeLimit.length <= 0) {
-// 			isFormValid = false;
-// 			alert('Please Enter a valid number for Time Limit!');
-// 		}
-
-// 		// If no button is selected
-// 		if (!shadowRoot.contains(shadowRoot.querySelector('.selected'))) {
-// 			isFormValid = false;
-// 			alert('Please select a button!');
-// 		}
-
-// 		// If all form input is valid
-// 		if (isFormValid) {
-// 			const useTime = shadowRoot.querySelector('.radio-btn.selected').value;
-// 			console.log("Use time: ", useTime);
-
-// 			const data = {
-// 				expireOn: Date.now() + parseInt(useTime) * 60 * 1000, // Convert minutes into milliseconds
-// 				dailyLimit: parseInt(timeLimit)
-// 			};
-// 			console.log(data);
-// 			// Send data to foreground.js
-// 			window.parent.postMessage({ type: 'FORM_DATA', data: data }, '*');
-// 		}
-// 	});
-// });

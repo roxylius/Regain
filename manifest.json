@@ -4,6 +4,7 @@
     "name": "Regain",
     "description": "A Time management Tool to prevent dopamine Chase",
     "version": "0.0.4",
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlZv6imPd95SOIhyNcCBTJ72sQfBodEU+AzRnqHrjyLNXVtM6UDxIcs2TeHt0AADFK4/URAyFuP/vhs71R+L30Q/RHpTtMqLhsEXYWR7BAzzo7VOMOYAGtwyWxkN8Nkaz82xHfy3W7024ZLHpbzSobtUJODMX3SG2LiBzXZ9YakBHTc+49M8wugJAymSRUlcFydT30iWGxshr/HPdyLHCJfR3sL3MUPpYMJMrjrooSX/SXADBcNknKweqKSmomFNYMcQJh4TAiGAtuHFzwf//b3++xJkA2y/XqZachJUx5qow38L5zOwjpq637jWIklOx1QFfLDmvZEOPbRkfbKpXbwIDAQAB",
     "icons": {
         "16": "logo/logo-16.png",
         "48": "logo/logo-48.png",
@@ -22,11 +23,11 @@
         "service_worker": "service-worker.js"
     },
     "content_scripts": [{
-        "js": ["foreground.js","utils/page.js","utils/storageUtils.js"],
+        "js": ["foreground.js","utils/storageUtils.js"],
         "matches": ["*://*/*"]
     }],
     "web_accessible_resources": [{
-        "resources": ["utils/promptForm.html","utils/prompt.js","utils/timeExtensionForm.html","utils/timeExtension.js"],
+        "resources": ["utils/promptForm.html","utils/prompt.js","utils/timeExtensionForm.html","utils/timeExtension.js","utils/timesup.html","assets/lock.png"],
         "matches": ["<all_urls>"]
     }]
 }

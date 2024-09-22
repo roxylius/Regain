@@ -6,15 +6,20 @@ const initializeForm = async (shadowRoot) => {
 	//find page config to disable btn with time < remaining time left
 	const config = await getConfigData();
 
-	if(config == null)
-		alert("There is Error In timeExtension.js Report Dev!")
-
+	//if no data is received 
+	if(config == null){
+		alert("There is Error In timeExtension.js Report Dev! https://github.com/roxylius/Regain/issues");
+		window.parent.postMessage({ type: 'HIDE_OVERLAY' }, '*');
+		return;
+	}
+	console.log("configTimeExtension.js",config);
+	
 	buttons.forEach(button => {
+
 		if (!button.classList.contains('submit')) {
 			button.addEventListener('click', (event) => {
 				// Prevent default button behavior
 				event.preventDefault();
-				console.log("Button clicked: ", button);
 
 				// Remove 'selected' class from all buttons
 				buttons.forEach(btn => {
@@ -23,11 +28,21 @@ const initializeForm = async (shadowRoot) => {
 
 				// Add 'selected' class to the clicked button
 				button.classList.add('selected');
-
-				//disable btn with less time than remaining
-				if (config !== null && parseInt(button.value) >= (config.dailyLimit - config.timeUsed))
-					button.disabled = true;
 			});
+
+			//disable btn with less time than remaining
+			if (parseInt(button.value) >= (config.dailyLimit - config.timeUsed)){
+				button.disabled = true;
+
+				//add lock sign to the disable button
+				const lockGifImg = button.querySelector(".lock-gif_001");
+				if(lockGifImg){
+					lockGifImg.src = "chrome-extension://nldedndhbhcdokondnaamonepdoeinbj/assets/lock.png";
+					console.log("lockGifImg.src = ",lockGifImg.src);
+					lockGifImg.style.width = "35px";
+					lockGifImg.style.height = "35px";
+				}
+			}
 		}
 	});
 
@@ -52,7 +67,7 @@ const initializeForm = async (shadowRoot) => {
 
 			const data = {
 				expireOn: Date.now() + parseInt(useTime) * 60 * 1000, // Convert minutes into milliseconds
-				dailyLimit: parseInt(timeLimit)
+				allotedTime: parseInt(useTime)
 			};
 			console.log(data);
 			// Send data to foreground.js
@@ -63,7 +78,7 @@ const initializeForm = async (shadowRoot) => {
 
 // Wait for the shadow root to be available
 const waitForShadowRoot = () => {
-	const shadowHost = document.querySelector("#overlay");
+	const shadowHost = document.querySelector("#overlay.overlay-shadowRoot_001");
 	if (shadowHost) {
 		console.log("Shadow Host found");
 		const shadowRoot = shadowHost.shadowRoot;

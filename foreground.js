@@ -12,7 +12,8 @@
  *  origin: uri,
  *  TimeUsed: page time engagement daily,
  *  ExpireOn: Epoch time till which website is unblocked,
- *  DailyLimit: Daily Usage Limit
+ *  DailyLimit: Daily Usage Limit,
+ *  allotedTime: Stores the time selected in minutes
  * }
  */
 let DB = [];
@@ -43,13 +44,15 @@ window.onload = async () => {
         const timeUsed = config.timeUsed;
         const dailyLimit = config.dailyLimit;
         const expireOn = config.expireOn;
+        const allotedTime = config.allotedTime;
 
         //time up
-        checkDailyLimit(dailyLimit, timeUsed);
+        const isLimitReached = checkDailyLimit(dailyLimit, timeUsed);
+        if(isLimitReached) return;
 
         //if cur time is expired
         console.log({ checkExpirationAndShowExtensionForm });
-        await checkExpirationAndShowExtensionForm(expireOn, dailyLimit, timeUsed);
+        await checkExpirationAndShowExtensionForm(expireOn,timeUsed,allotedTime);
     }
 }
 
@@ -71,7 +74,8 @@ const getPageConfig = async () => {
                 origin,
                 timeUsed: 0,
                 expireOn: formData.expireOn,
-                dailyLimit: formData.dailyLimit
+                dailyLimit: formData.dailyLimit,
+                allotedTime: formData.allotedTime
             }
 
             DB.push(pageConfig);
@@ -96,6 +100,7 @@ const promptToGetData = async () => {
     // Create an overlay element
     const overlay = Object.assign(document.createElement('div'), {
         id: 'overlay',
+        className: `overlay-shadowRoot_001`,
         style: `
             position: fixed;
             top: 0;
@@ -143,7 +148,7 @@ const promptToGetData = async () => {
 
 // Function to hide the overlay by removing element
 const hideOverlay = () => {
-    const overlay = document.getElementById('overlay');
+    const overlay = document.querySelector('#overlay.overlay-shadowRoot_001');
     if (overlay) {
         overlay.remove();
     }
@@ -151,9 +156,16 @@ const hideOverlay = () => {
 };
 
 
-// Function to check if the daily limit is reached
+/**
+ * Function to check if the daily limit is reached
+ * @param dailyLimit daily usage limit in minutes
+ * @param timeUsed time for which website is used minutes
+ * @returns return true if daily limit is reached else false
+ */
 function checkDailyLimit(dailyLimit, timeUsed) {
-    if (dailyLimit <= timeUsed) {
+    console.log("dailyLimit - 1",dailyLimit - 1,"timeUsed",timeUsed,"val",dailyLimit - 1 <= timeUsed);
+    
+    if (dailyLimit - 1 <= timeUsed) {
         // Fetch the timesup.html content
         fetch(chrome.runtime.getURL('utils/timesup.html'))
             .then(response => response.text())
@@ -162,11 +174,13 @@ function checkDailyLimit(dailyLimit, timeUsed) {
                 document.documentElement.innerHTML = html;
             })
             .catch(error => console.error('Error fetching timesup.html:', error));
+        return true;
     }
+    return false;
 }
 
 // Function to check if the current time is expired and show the time extension form
-async function checkExpirationAndShowExtensionForm(expireOn, dailyLimit, timeUsed) {
+async function checkExpirationAndShowExtensionForm(expireOn, timeUsed,allotedTime) {
     console.log("checkExpirationAndShowExtensionForm called");
     console.log("dataNow", Date.now(), "exipreOn:", expireOn, "isGreater", Date.now() > expireOn);
 
@@ -175,9 +189,14 @@ async function checkExpirationAndShowExtensionForm(expireOn, dailyLimit, timeUse
 
         document.documentElement.style.overflow = 'hidden';
 
+        //as time is expired it is added to timeUsed
+        timeUsed = parseInt(timeUsed) + parseInt(allotedTime);
+        updateConfigOnDataChange({timeUsed,allotedTime:0});
+
         // Create an overlay element
         const overlay = Object.assign(document.createElement('div'), {
             id: 'overlay',
+            className:`overlay-shadowRoot_001`,
             style: `
                 position: fixed;
                 top: 0;
@@ -214,6 +233,7 @@ async function checkExpirationAndShowExtensionForm(expireOn, dailyLimit, timeUse
                 if (event.data.type === 'FORM_DATA') {
                     const data = event.data.data;
                     console.log("dataNewEvtListner", data);
+                    updateConfigOnDataChange(data);
                     hideOverlay();
                     resolve(data);
                 }
@@ -223,4 +243,11 @@ async function checkExpirationAndShowExtensionForm(expireOn, dailyLimit, timeUse
 }
 
 console.log(window.origin);
+
+
+window.addEventListener("message",(event) => {
+    if(event.data.type == "HIDE_OVERLAY") {
+        hideOverlay();
+    }
+})
 

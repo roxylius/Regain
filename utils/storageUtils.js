@@ -52,6 +52,35 @@ function findPageConfigByOrigin(origin) {
     return null;
 }
 
+/**
+ * append newly added data to page config store
+ * @param updateProp receives any object with the updated prop with new value
+ */
+const updateConfigOnDataChange = (updatedProp) => {
+    let db = getDB();
+
+    // Check if DB is not empty
+    if (db.length != 0) {
+        db = db.map(page => {
+            // Overwrite the page with old config with the new prop
+            if (page.origin == origin) {
+                const newConfig = { ...page, ...updatedProp };
+                console.log("updateConfigOnDataChange", newConfig);
+                return newConfig;
+            }
+            return page;
+        });
+    }
+
+    //set update prop
+    setDB(db);
+
+    const isUpdate = findPageConfigByOrigin(window.origin);
+    console.log("updateConfigOnDataChange: [UpdatedDB]",isUpdate);
+    
+}
+
+
 // Export functions to global scope
 window.getDB = getDB;
 window.setDB = setDB;
@@ -59,6 +88,7 @@ window.getWhitelist = getWhitelist;
 window.setWhitelist = setWhitelist;
 window.checkPageInWhiteList = checkPageInWhiteList;
 window.findPageConfigByOrigin = findPageConfigByOrigin;
+window.updateConfigOnDataChange = updateConfigOnDataChange;
 
 
 /**
@@ -72,3 +102,8 @@ window.addEventListener('message', (event) => {
         window.postMessage({ type: 'PAGE_CONFIG_RESPONSE', config: config }, '*');
     }
 });
+
+// (()=>{
+//     console.log("locaalStorage Clearrrrr");
+//     localStorage.clear();
+// })();

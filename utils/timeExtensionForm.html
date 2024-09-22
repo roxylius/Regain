@@ -120,22 +120,29 @@
             display: flex;
             flex-direction: row;
         }
+
+        button:disabled,button[disabled],button[disabled]:hover{
+            background-color: #28ba28;
+            transform: none; /* Prevent translateY */
+            box-shadow: none; /* Remove box-shadow if needed */
+            cursor: not-allowed;
+        }
     </style>
 </head>
 
 <body>
-    <form class="timeExtensionForm">
+    <form class="configForm">
         <h3>Enter Time</h3>
 
         <label for="DailyLimit">How long you want to use?</label>
         <div class="radio-container">
             <div class="radio-r">
-                <button class="button-30" id="2min" value="2">2 Minutes</button>
-                <button class="button-30" id="10min" value="10">10 Minutes</button>
+                <button class="button-30" id="2min" value="2"><img class="lock-gif_001">2 Minutes</button>
+                <button class="button-30" id="10min" value="10"><img class="lock-gif_001">10 Minutes</button>
             </div>
             <div class="radio-l">
-                <button class="button-30" id="5min" value="5">5 Minutes</button>
-                <button class="button-30" id="15min" value="15">15 Minutes</button>
+                <button class="button-30" id="5min" value="5"><img class="lock-gif_001">5 Minutes</button>
+                <button class="button-30" id="15min" value="15"><img class="lock-gif_001">15 Minutes</button>
             </div>
         </div>
         <button class="button-30 submit" type="submit">Load Website</button>
