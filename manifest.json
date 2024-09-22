@@ -5,17 +5,18 @@
     "description": "A Time management Tool to prevent dopamine Chase",
     "version": "0.0.4",
     "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlZv6imPd95SOIhyNcCBTJ72sQfBodEU+AzRnqHrjyLNXVtM6UDxIcs2TeHt0AADFK4/URAyFuP/vhs71R+L30Q/RHpTtMqLhsEXYWR7BAzzo7VOMOYAGtwyWxkN8Nkaz82xHfy3W7024ZLHpbzSobtUJODMX3SG2LiBzXZ9YakBHTc+49M8wugJAymSRUlcFydT30iWGxshr/HPdyLHCJfR3sL3MUPpYMJMrjrooSX/SXADBcNknKweqKSmomFNYMcQJh4TAiGAtuHFzwf//b3++xJkA2y/XqZachJUx5qow38L5zOwjpq637jWIklOx1QFfLDmvZEOPbRkfbKpXbwIDAQAB",
+    "author":"roxylius",
     "icons": {
         "16": "logo/logo-16.png",
-        "48": "logo/logo-48.png",
+        "32": "logo/logo-32.png",
         "128": "logo/logo-128.png"
     },
     "options_page": "settings/settings.html",
     "action": {
-        "default_title": "Chrome Addon v3 Starter",
+        "default_title": "Regain",
         "default_popup": "popup/popup.html"
     },
-    "permissions": ["history"],
+    "permissions": ["history","storage"],
     "host_permissions": [
         "*://*/*"
     ],
