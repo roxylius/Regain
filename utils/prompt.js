@@ -1,14 +1,14 @@
 const initializeForm = (shadowRoot) => {
 	// Select buttons within the shadow root
 	const buttons = shadowRoot.querySelectorAll('.button-30');
-	console.log("Buttons found: ", buttons);
+	//console.log("Buttons found: ", buttons);
 
 	buttons.forEach(button => {
 		if (!button.classList.contains('submit')) {
 			button.addEventListener('click', (event) => {
 				// Prevent default button behavior
 				event.preventDefault();
-				console.log("Button clicked: ", button);
+				//console.log("Button clicked: ", button);
 
 				// Remove 'selected' class from all buttons
 				buttons.forEach(btn => {
@@ -32,7 +32,7 @@ const initializeForm = (shadowRoot) => {
 
 		// If time limit is not a number or empty
 		const timeLimit = shadowRoot.querySelector('#limit').value;
-		console.log("Time limit: ", timeLimit);
+		//console.log("Time limit: ", timeLimit);
 
 		// prevent string , not null and value greater that 120min 
 		if (isNaN(timeLimit) || timeLimit.length <= 0 || timeLimit > 120 ) {
@@ -49,14 +49,14 @@ const initializeForm = (shadowRoot) => {
 		// If all form input is valid
 		if (isFormValid) {
 			const useTime = shadowRoot.querySelector('.button-30.selected').value;
-			console.log("Use time: ", useTime);
+			//console.log("Use time: ", useTime);
 
 			const data = {
 				expireOn: Date.now() + parseInt(useTime) * 60 * 1000, // Convert minutes into milliseconds
 				dailyLimit: parseInt(timeLimit),
 				allotedTime: parseInt(useTime)
 			};
-			console.log(data);
+			//console.log(data);
 			// Send data to foreground.js
 			window.parent.postMessage({ type: 'FORM_DATA', data: data }, '*');
 		}
@@ -78,10 +78,10 @@ const initializeForm = (shadowRoot) => {
 const waitForShadowRoot = () => {
     const shadowHost = document.querySelector("#overlay.overlay-shadowRoot_001");
     if (shadowHost) {
-        console.log("Shadow Host and Shadow Root found");
+        //console.log("Shadow Host and Shadow Root found");
         initializeForm(shadowHost.shadowRoot);
     } else {
-        console.log("Waiting for shadow root...");
+        //console.log("Waiting for shadow root...");
         requestAnimationFrame(waitForShadowRoot); // Retry on the next frame
     }
 };

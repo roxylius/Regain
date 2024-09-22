@@ -1,7 +1,7 @@
 const initializeForm = async (shadowRoot) => {
 	// Select buttons within the shadow root
 	const buttons = shadowRoot.querySelectorAll('.button-30');
-	console.log("Buttons found: ", buttons);
+	//console.log("Buttons found: ", buttons);
 
 	//find page config to disable btn with time < remaining time left
 	const config = await getConfigData();
@@ -12,7 +12,7 @@ const initializeForm = async (shadowRoot) => {
 		window.parent.postMessage({ type: 'HIDE_OVERLAY' }, '*');
 		return;
 	}
-	console.log("configTimeExtension.js",config);
+	//console.log("configTimeExtension.js",config);
 	
 	buttons.forEach(button => {
 
@@ -38,7 +38,7 @@ const initializeForm = async (shadowRoot) => {
 				const lockGifImg = button.querySelector(".lock-gif_001");
 				if(lockGifImg){
 					lockGifImg.src = "chrome-extension://nldedndhbhcdokondnaamonepdoeinbj/assets/lock.png";
-					console.log("lockGifImg.src = ",lockGifImg.src);
+					//console.log("lockGifImg.src = ",lockGifImg.src);
 					lockGifImg.style.width = "35px";
 					lockGifImg.style.height = "35px";
 				}
@@ -63,13 +63,13 @@ const initializeForm = async (shadowRoot) => {
 		// If all form input is valid
 		if (isFormValid) {
 			const useTime = shadowRoot.querySelector('.button-30.selected').value;
-			console.log("Use time: ", useTime);
+			//console.log("Use time: ", useTime);
 
 			const data = {
 				expireOn: Date.now() + parseInt(useTime) * 60 * 1000, // Convert minutes into milliseconds
 				allotedTime: parseInt(useTime)
 			};
-			console.log(data);
+			//console.log(data);
 			// Send data to foreground.js
 			window.parent.postMessage({ type: 'FORM_DATA', data: data }, '*');
 		}
@@ -80,11 +80,11 @@ const initializeForm = async (shadowRoot) => {
 const waitForShadowRoot = () => {
 	const shadowHost = document.querySelector("#overlay.overlay-shadowRoot_001");
 	if (shadowHost) {
-		console.log("Shadow Host found");
+		//console.log("Shadow Host found");
 		const shadowRoot = shadowHost.shadowRoot;
 		initializeForm(shadowRoot);
 	} else {
-		console.log("Waiting for shadow root...");
+		//console.log("Waiting for shadow root...");
 		setTimeout(waitForShadowRoot, 100); // Retry after 100ms
 	}
 };

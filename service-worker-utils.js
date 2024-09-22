@@ -3,7 +3,7 @@
 // inside the service worker.
 // The importation is done in the file `service-worker.js`.
 
-console.log("External file is also loaded!");
+//console.log("External file is also loaded!");
 
 function queryHistory() {
     chrome.history.search({ text: '', maxResults: 10 }, function(data) {
@@ -13,7 +13,7 @@ function queryHistory() {
                 origin: url.origin,
                 lastVisitTime: page.lastVisitTime,
             };
-            console.log(data);
+            //console.log(data);
         });
     });
 }

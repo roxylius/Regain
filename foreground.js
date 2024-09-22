@@ -33,11 +33,11 @@ window.onload = async () => {
     if (!isPageWhiteListed) {
         // Get Page Data
         const config = await getPageConfig();
-        console.log({ config });
+        //console.log({ config });
 
 
         // Stop script if page gets whitelisted
-        if (checkPageInWhiteList(window.origin)) console.log("whitelisted");
+        if (checkPageInWhiteList(window.origin)) //console.log("whitelisted");
         if (checkPageInWhiteList(window.origin)) return;
 
         //get config properties
@@ -51,7 +51,7 @@ window.onload = async () => {
         if(isLimitReached) return;
 
         //if cur time is expired
-        console.log({ checkExpirationAndShowExtensionForm });
+        //console.log({ checkExpirationAndShowExtensionForm });
         await checkExpirationAndShowExtensionForm(expireOn,timeUsed,allotedTime);
     }
 }
@@ -138,7 +138,7 @@ const promptToGetData = async () => {
         window.addEventListener('message', (event) => {
             if (event.data.type === 'FORM_DATA') {
                 const data = event.data.data;
-                console.log("dataOld", data);
+                //console.log("dataOld", data);
                 hideOverlay();
                 resolve(data);
             }
@@ -163,7 +163,7 @@ const hideOverlay = () => {
  * @returns return true if daily limit is reached else false
  */
 function checkDailyLimit(dailyLimit, timeUsed) {
-    console.log("dailyLimit - 1",dailyLimit - 1,"timeUsed",timeUsed,"val",dailyLimit - 1 <= timeUsed);
+    //console.log("dailyLimit - 1",dailyLimit - 1,"timeUsed",timeUsed,"val",dailyLimit - 1 <= timeUsed);
     
     if (dailyLimit - 1 <= timeUsed) {
         // Fetch the timesup.html content
@@ -181,11 +181,11 @@ function checkDailyLimit(dailyLimit, timeUsed) {
 
 // Function to check if the current time is expired and show the time extension form
 async function checkExpirationAndShowExtensionForm(expireOn, timeUsed,allotedTime) {
-    console.log("checkExpirationAndShowExtensionForm called");
-    console.log("dataNow", Date.now(), "exipreOn:", expireOn, "isGreater", Date.now() > expireOn);
+    //console.log("checkExpirationAndShowExtensionForm called");
+    //console.log("dataNow", Date.now(), "exipreOn:", expireOn, "isGreater", Date.now() > expireOn);
 
     if (Date.now() > expireOn) {
-        console.log("true page time expired");
+        //console.log("true page time expired");
 
         document.documentElement.style.overflow = 'hidden';
 
@@ -232,7 +232,7 @@ async function checkExpirationAndShowExtensionForm(expireOn, timeUsed,allotedTim
             window.addEventListener('message', (event) => {
                 if (event.data.type === 'FORM_DATA') {
                     const data = event.data.data;
-                    console.log("dataNewEvtListner", data);
+                    //console.log("dataNewEvtListner", data);
                     updateConfigOnDataChange(data);
                     hideOverlay();
                     resolve(data);
@@ -242,7 +242,7 @@ async function checkExpirationAndShowExtensionForm(expireOn, timeUsed,allotedTim
     }
 }
 
-console.log(window.origin);
+//console.log(window.origin);
 
 
 window.addEventListener("message",(event) => {
