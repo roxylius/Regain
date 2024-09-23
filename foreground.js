@@ -265,6 +265,7 @@ const expirationCheck = () => {
         const expireOn = config.expireOn;
         const timeUsed = config.timeUsed;
         const allotedTime = config.allotedTime;
+        const dailyLimit = config.dailyLimit;
     
         setInterval(()=> {
             const isLimitReached = checkDailyLimit(dailyLimit, timeUsed);
