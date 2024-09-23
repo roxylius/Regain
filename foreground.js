@@ -38,7 +38,7 @@ window.onload = async () => {
 
         // Stop script if page gets whitelisted
         if (checkPageInWhiteList(window.origin)) //console.log("whitelisted");
-        if (checkPageInWhiteList(window.origin)) return;
+            if (checkPageInWhiteList(window.origin)) return;
 
         //get config properties
         const timeUsed = config.timeUsed;
@@ -48,11 +48,14 @@ window.onload = async () => {
 
         //time up
         const isLimitReached = checkDailyLimit(dailyLimit, timeUsed);
-        if(isLimitReached) return;
+        if (isLimitReached) return;
 
         //if cur time is expired
         //console.log({ checkExpirationAndShowExtensionForm });
-        await checkExpirationAndShowExtensionForm(expireOn,timeUsed,allotedTime);
+        await checkExpirationAndShowExtensionForm(expireOn, timeUsed, allotedTime);
+
+        //constantly check if the page has expired
+        expirationCheck();
     }
 }
 
@@ -163,9 +166,10 @@ const hideOverlay = () => {
  * @returns return true if daily limit is reached else false
  */
 function checkDailyLimit(dailyLimit, timeUsed) {
-    //console.log("dailyLimit - 1",dailyLimit - 1,"timeUsed",timeUsed,"val",dailyLimit - 1 <= timeUsed);
-    
-    if (dailyLimit - 1 <= timeUsed) {
+    //to prevent all button getting disabled
+    if (dailyLimit % 2) dailyLimit -= 1;
+
+    if (dailyLimit <= timeUsed) {
         // Fetch the timesup.html content
         fetch(chrome.runtime.getURL('utils/timesup.html'))
             .then(response => response.text())
@@ -180,8 +184,7 @@ function checkDailyLimit(dailyLimit, timeUsed) {
 }
 
 // Function to check if the current time is expired and show the time extension form
-async function checkExpirationAndShowExtensionForm(expireOn, timeUsed,allotedTime) {
-    //console.log("checkExpirationAndShowExtensionForm called");
+async function checkExpirationAndShowExtensionForm(expireOn, timeUsed, allotedTime) {
     //console.log("dataNow", Date.now(), "exipreOn:", expireOn, "isGreater", Date.now() > expireOn);
 
     if (Date.now() > expireOn) {
@@ -191,12 +194,12 @@ async function checkExpirationAndShowExtensionForm(expireOn, timeUsed,allotedTim
 
         //as time is expired it is added to timeUsed
         timeUsed = parseInt(timeUsed) + parseInt(allotedTime);
-        updateConfigOnDataChange({timeUsed,allotedTime:0});
+        updateConfigOnDataChange({ timeUsed, allotedTime: 0 });
 
         // Create an overlay element
         const overlay = Object.assign(document.createElement('div'), {
             id: 'overlay',
-            className:`overlay-shadowRoot_001`,
+            className: `overlay-shadowRoot_001`,
             style: `
                 position: fixed;
                 top: 0;
@@ -219,7 +222,7 @@ async function checkExpirationAndShowExtensionForm(expireOn, timeUsed,allotedTim
         const html = await response.text();
         shadowRoot.innerHTML = html;
 
-         // Inject script into shadow root to avoid JS func conflicts with the original page js
+        // Inject script into shadow root to avoid JS func conflicts with the original page js
         const script = document.createElement('script');
         script.src = chrome.runtime.getURL('utils/timeExtension.js');
         shadowRoot.appendChild(script);
@@ -245,9 +248,28 @@ async function checkExpirationAndShowExtensionForm(expireOn, timeUsed,allotedTim
 //console.log(window.origin);
 
 
-window.addEventListener("message",(event) => {
-    if(event.data.type == "HIDE_OVERLAY") {
+window.addEventListener("message", (event) => {
+    if (event.data.type == "HIDE_OVERLAY") {
         hideOverlay();
     }
 })
 
+
+
+/**
+ * This method checks if the time to use is expired for webpage every minute
+ */
+const expirationCheck = () => {
+    const config = findPageConfigByOrigin(window.origin);
+    if(config != null){
+        const expireOn = config.expireOn;
+        const timeUsed = config.timeUsed;
+        const allotedTime = config.allotedTime;
+    
+        setInterval(()=> {
+            const isLimitReached = checkDailyLimit(dailyLimit, timeUsed);
+            if (isLimitReached) return;
+            checkExpirationAndShowExtensionForm(expireOn,timeUsed,allotedTime)
+        }, 60000) // check every minute
+    }
+}

@@ -5,13 +5,14 @@
 //console.log("This prints to the console of the service worker (background script)")
 
 // Importing and using functionality from external files is also possible.
-importScripts('service-worker-utils.js')
+importScripts('service-worker-utils.js');
 
 // If you want to import a file that is deeper in the file hierarchy of your
 // extension, simply do `importScripts('path/to/file.js')`.
 // The path should be relative to the file `manifest.json`.
 
-chrome.runtime.onInstalled.addListener(() => {
-    //console.log("Extension installed");
-    queryHistory();
+// Call the function when the browser starts up
+chrome.runtime.onStartup.addListener(() => {
+    console.log("event listener working....");
+    checkAndResetLocalStorage();
 });

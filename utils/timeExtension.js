@@ -1,3 +1,5 @@
+// Wrap the code in timeExtension.js in an IIFE to avoid polluting the global scope:
+(() => {
 const initializeForm = async (shadowRoot) => {
 	// Select buttons within the shadow root
 	const buttons = shadowRoot.querySelectorAll('.button-30');
@@ -30,8 +32,8 @@ const initializeForm = async (shadowRoot) => {
 				button.classList.add('selected');
 			});
 
-			//disable btn with less time than remaining
-			if (parseInt(button.value) >= (config.dailyLimit - config.timeUsed)){
+			//disable btn with more time than remaining time
+			if (parseInt(button.value) > (config.dailyLimit - config.timeUsed)){
 				button.disabled = true;
 
 				//add lock sign to the disable button
@@ -107,3 +109,4 @@ const getConfigData = async () => {
 
 waitForShadowRoot();
 
+})();

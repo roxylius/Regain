@@ -5,15 +5,33 @@
 
 //console.log("External file is also loaded!");
 
-function queryHistory() {
-    chrome.history.search({ text: '', maxResults: 10 }, function(data) {
-        data.forEach(function(page) {
-            const url = new URL(page.url);
-            const data = {
-                origin: url.origin,
-                lastVisitTime: page.lastVisitTime,
-            };
-            //console.log(data);
-        });
-    });
+/**
+ * This function resets the timeUsed everyDay
+ */
+const checkAndResetTimeUsed = () => {
+    console.log("checkResetTime....");
+    
+    const storedDate = localStorage.getItem("date");
+    const currentDate = new Date().toISOString().split("T")[0];
+
+    if(storedDate){
+        console.log("date stored");
+        
+        const storedDateObj = new Date(storedDate);
+        const currentDateObj = new Date(currentDate);
+
+        //if its the next day
+        if(storedDateObj < currentDateObj){
+            //Reset usedTime in all pageConfig
+            let db = getDB();
+            db = db.map(config => {
+                return {...config,timeUsed:0};
+            });
+
+            //stores it back in array
+            setDB(db);
+        }
+    }
+    //both if no date prop or if its next day
+    localStorage.setItem("date",currentDate);
 }

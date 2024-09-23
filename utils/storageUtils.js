@@ -104,6 +104,6 @@ window.addEventListener('message', (event) => {
 });
 
 // (()=>{
-//     //console.log("locaalStorage Clearrrrr");
+//     console.log("locaalStorage Clearrrrr");
 //     localStorage.clear();
 // })();
