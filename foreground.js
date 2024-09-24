@@ -191,6 +191,9 @@ async function checkExpirationAndShowExtensionForm(expireOn, timeUsed, allotedTi
         //console.log("true page time expired");
 
         document.documentElement.style.overflow = 'hidden';
+        //pause any video running in background [p.s. did it for yt]
+        const videos = document.querySelectorAll("video");
+        if(videos) videos.forEach(vid => vid.pause());
 
         //as time is expired it is added to timeUsed
         timeUsed = parseInt(timeUsed) + parseInt(allotedTime);
