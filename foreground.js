@@ -21,6 +21,13 @@ let DB = [];
 // Array that stores whitelisted origins
 let whiteList = [];
 
+// Create a single overlay instance (outside any function)
+let overlay = null;
+let shadowRoot = null; // Store the shadow root
+
+// Flag to track if the check is already running
+// let isExpirationCheckRunning = false; 
+
 window.onload = async () => {
     // Load DB from localStorage
     DB = getDB();
@@ -100,41 +107,25 @@ const getPageConfig = async () => {
 const promptToGetData = async () => {
     document.documentElement.style.overflow = 'hidden';
 
-    // Create an overlay element
-    const overlay = Object.assign(document.createElement('div'), {
-        id: 'overlay',
-        className: `overlay-shadowRoot_001`,
-        style: `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: auto;
-        `
-    });
+    //prevent creating of overlay if it already exists
+    if (!document.querySelector("#overlay.overlay-shadowRoot_001")) {
 
-    //create shadow root to load promptForm.html
-    const shadowRoot = overlay.attachShadow({ mode: 'open' });
+        // Get the overlay (this will create it if it doesn't exist)
+        const overlay = getOverlay();
 
-    // Load the promptform html into the shadow root as text
-    const response = await fetch(chrome.runtime.getURL('utils/promptForm.html'));
-    const html = await response.text();
-    shadowRoot.innerHTML = html;
+        // Load the promptform html into the shadow root as text
+        const response = await fetch(chrome.runtime.getURL('utils/promptForm.html'));
+        const html = await response.text();
+        shadowRoot.innerHTML = html;
 
-    // Inject script into shadow root to avoid JS func conflicts with the original page js
-    const script = document.createElement('script');
-    script.src = chrome.runtime.getURL('utils/prompt.js');
-    shadowRoot.appendChild(script);
+        // Inject script into shadow root to avoid JS func conflicts with the original page js
+        const script = document.createElement('script');
+        script.src = chrome.runtime.getURL('utils/prompt.js');
+        shadowRoot.appendChild(script);
 
-    // Append the overlay to the body of original page
-    document.body.appendChild(overlay);
-
+        // Append the overlay to the body of original page
+        document.body.appendChild(overlay);
+    }
 
     return new Promise((resolve, reject) => {
         // Add event listener to handle form submission
@@ -148,6 +139,30 @@ const promptToGetData = async () => {
         });
     })
 };
+
+// Function to get the overlay element (creates it if it doesn't exist)
+function getOverlay() {
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'overlay';
+        overlay.className = 'overlay-shadowRoot_001';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: auto; // Add this to enable scrolling within the overlay
+        `;
+        shadowRoot = overlay.attachShadow({ mode: 'open' }); // Create the shadow root
+    }
+    return overlay;
+}
 
 // Function to hide the overlay by removing element
 const hideOverlay = () => {
@@ -187,64 +202,59 @@ function checkDailyLimit(dailyLimit, timeUsed) {
 async function checkExpirationAndShowExtensionForm(expireOn, timeUsed, allotedTime) {
     //console.log("dataNow", Date.now(), "exipreOn:", expireOn, "isGreater", Date.now() > expireOn);
 
+    console.log("true page time expired! Date.now()", Date.now(), "expireOn", expireOn);
     if (Date.now() > expireOn) {
-        //console.log("true page time expired");
+        try {
 
-        document.documentElement.style.overflow = 'hidden';
-        //pause any video running in background [p.s. did it for yt]
-        const videos = document.querySelectorAll("video");
-        if(videos) videos.forEach(vid => vid.pause());
+            document.documentElement.style.overflow = 'hidden';
+            //pause any video running in background [p.s. did it for yt]
+            const videos = document.querySelectorAll("video");
+            if (videos) videos.forEach(vid => vid.pause());
 
-        //as time is expired it is added to timeUsed
-        timeUsed = parseInt(timeUsed) + parseInt(allotedTime);
-        updateConfigOnDataChange({ timeUsed, allotedTime: 0 });
+            //as time is expired it is added to timeUsed
+            timeUsed = parseInt(timeUsed) + parseInt(allotedTime);
+            updateConfigOnDataChange({ timeUsed, allotedTime: 0 });
 
-        // Create an overlay element
-        const overlay = Object.assign(document.createElement('div'), {
-            id: 'overlay',
-            className: `overlay-shadowRoot_001`,
-            style: `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.8);
-                z-index: 9999;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                `
-        });
+            // Get the overlay (this will create it if it doesn't exist)
+            const overlay = getOverlay();
 
-        // Create a shadow root
-        const shadowRoot = overlay.attachShadow({ mode: 'open' });
+            // Set the inner HTML of the shadow root to timeExtensionForm.html
+            const response = await fetch(chrome.runtime.getURL('utils/timeExtensionForm.html'));
+            const html = await response.text();
+            shadowRoot.innerHTML = html;
 
-        // Set the inner HTML of the shadow root to timeExtensionForm.html
-        const response = await fetch(chrome.runtime.getURL('utils/timeExtensionForm.html'));
-        const html = await response.text();
-        shadowRoot.innerHTML = html;
+            // Inject script into shadow root to avoid JS func conflicts with the original page js
+            const script = document.createElement('script');
+            script.src = chrome.runtime.getURL('utils/timeExtension.js');
+            shadowRoot.appendChild(script);
 
-        // Inject script into shadow root to avoid JS func conflicts with the original page js
-        const script = document.createElement('script');
-        script.src = chrome.runtime.getURL('utils/timeExtension.js');
-        shadowRoot.appendChild(script);
+            // Append the overlay to the body
+            document.body.appendChild(overlay);
 
-        // Append the overlay to the body
-        document.body.appendChild(overlay);
+            return new Promise((resolve, reject) => {
+                // Add event listener to handle form submission
+                window.addEventListener('message', (event) => {
+                    if (event.data.type === 'FORM_DATA') {
+                        const data = event.data.data;
+                        //console.log("dataNewEvtListner", data);
+                        
+                        //sets timeout for the checkExpiration form trigger
+                        const timeUntilNextCheck = data.expireOn - Date.now(); 
+                        setTimeout(()=>{
+                            console.log("timeout triggered data.expireOn",data.expireOn,"data.timeUsed",data.timeUsed,"data.allotedTime",data.allotedTime);
+                            checkExpirationAndShowExtensionForm(data.expireOn,data.timeUsed,data.allotedTime);
+                        },timeUntilNextCheck)
 
-        return new Promise((resolve, reject) => {
-            // Add event listener to handle form submission
-            window.addEventListener('message', (event) => {
-                if (event.data.type === 'FORM_DATA') {
-                    const data = event.data.data;
-                    //console.log("dataNewEvtListner", data);
-                    updateConfigOnDataChange(data);
-                    hideOverlay();
-                    resolve(data);
-                }
+                        updateConfigOnDataChange(data);
+                        hideOverlay();
+                        resolve(data);
+                    }
+                });
             });
-        })
+
+        } catch (error) {
+            console.log("checkExpirationAndShowExtensionForm Err:", error);
+        }
     }
 }
 
@@ -259,21 +269,25 @@ window.addEventListener("message", (event) => {
 
 
 
-/**
- * This method checks if the time to use is expired for webpage every minute
- */
-const expirationCheck = () => {
-    const config = findPageConfigByOrigin(window.origin);
-    if(config != null){
-        const expireOn = config.expireOn;
-        const timeUsed = config.timeUsed;
-        const allotedTime = config.allotedTime;
-        const dailyLimit = config.dailyLimit;
-    
-        setInterval(()=> {
-            const isLimitReached = checkDailyLimit(dailyLimit, timeUsed);
-            if (isLimitReached) return;
-            checkExpirationAndShowExtensionForm(expireOn,timeUsed,allotedTime)
-        }, 60000) // check every minute
-    }
-}
+// /**
+//  * This method checks if the time to use is expired for webpage every minute
+//  */
+// const expirationCheck = () => {
+//     const config = findPageConfigByOrigin(window.origin);
+//     if (config != null) {
+//         const expireOn = config.expireOn;
+//         const timeUsed = config.timeUsed;
+//         const allotedTime = config.allotedTime;
+//         const dailyLimit = config.dailyLimit;
+
+//         setInterval(async () => {
+//             const isLimitReached = checkDailyLimit(dailyLimit, timeUsed);
+//             if (isLimitReached) return;
+//             try {
+//                 await checkExpirationAndShowExtensionForm(expireOn, timeUsed, allotedTime)
+//             } catch (error) {
+//                 console.log("ExpirationCheck Error:", error);
+//             }
+//         }, 60000) // check every minute
+//     }
+// }

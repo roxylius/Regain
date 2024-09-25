@@ -1,3 +1,5 @@
+// Wrap the code in timeExtension.js in an IIFE to avoid polluting the global scope:
+(() => {
 const initializeForm = (shadowRoot) => {
 	// Select buttons within the shadow root
 	const buttons = shadowRoot.querySelectorAll('.button-30');
@@ -88,3 +90,5 @@ const waitForShadowRoot = () => {
 
 // Start waiting for the shadow root
 waitForShadowRoot();
+
+})();

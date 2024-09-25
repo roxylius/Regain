@@ -65,7 +65,7 @@ const updateConfigOnDataChange = (updatedProp) => {
             // Overwrite the page with old config with the new prop
             if (page.origin == origin) {
                 const newConfig = { ...page, ...updatedProp };
-                // //console.log("updateConfigOnDataChange", newConfig);
+                console.log("updateConfigOnDataChange", newConfig);
                 return newConfig;
             }
             return page;
@@ -73,6 +73,8 @@ const updateConfigOnDataChange = (updatedProp) => {
     }
 
     //set update prop
+    console.log("updateConfigOnDataChange:",db);
+    
     setDB(db);
 
     const isUpdate = findPageConfigByOrigin(window.origin);

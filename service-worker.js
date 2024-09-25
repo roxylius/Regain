@@ -12,7 +12,7 @@ importScripts('service-worker-utils.js');
 // The path should be relative to the file `manifest.json`.
 
 // Call the function when the browser starts up
-chrome.runtime.onStartup.addListener(() => {
+chrome.tabs.onUpdated.addListener(() => {
     console.log("event listener working....");
-    checkAndResetLocalStorage();
+    checkAndResetTimeUsed();
 });
